@@ -10,8 +10,10 @@ def recorrer_directorio(ruta):
     """
     if not os.path.exists(ruta):
         raise Exception("La ruta no existe")
+    
     if not os.path.isdir(ruta):
         raise Exception("La ruta no es un directorio")
+    
     return recorrer_directorio_aux(ruta, 0)
 
 
@@ -24,8 +26,7 @@ def recorrer_directorio_aux(ruta, profundidad):
     Salidas:
     - dict: diccionario con la estructura de directorios y archivos encontrados.
     """
-    pesos = []
-    nombres_archivos = []
+
     dic = {
         "nombre": os.path.basename(ruta),
         "ruta": ruta,
@@ -33,9 +34,11 @@ def recorrer_directorio_aux(ruta, profundidad):
         "hijos": [],
         "profundidad": profundidad,
         "archivos_cantidad": 0,
-        "archivos_peso": {}
+        "archivos_peso": []
     } 
+
     entradas = os.listdir(ruta)
+
     for entrada in entradas:
         ruta_entrada = os.path.join(ruta, entrada)
 
@@ -47,12 +50,38 @@ def recorrer_directorio_aux(ruta, profundidad):
         elif os.path.isfile(ruta_entrada):
             dic["archivos_cantidad"] += 1
             dic["peso"] += os.path.getsize(ruta_entrada)
-            nombres_archivos.append(ruta_entrada)
-            pesos.append(os.path.getsize(ruta_entrada))
-
-        else:
-            pass
+            dic["archivos_peso"].append((os.path.getsize(ruta_entrada), ruta_entrada))
 
     return dic
-        
 
+def top10_archivos(dic):
+    """
+    Funcion que devuelve una lista con los 10 archivos mas pesados
+    encontrados en el directorio y sus subdirectorios.
+    Entradas:
+    - dic: dict, diccionario con la estructura de directorios y archivos encontrados.
+    Salidas:
+    - list: lista con los 10 archivos mas pesados encontrados en el directorio y sus subdirectorios.
+    """ 
+    lista_archivos = []
+    for peso, ruta in dic["archivos_peso"]:
+        lista_archivos.append((peso, ruta))
+    for hijo in dic["hijos"]:
+        lista_archivos += top10_archivos(hijo)
+    lista_archivos.sort(reverse=True)
+    return lista_archivos[:10]
+
+def top10_directorios(dic):
+    """
+    Funcion que devuelve una lista con los 10 directorios con mas archivos encontrados.
+    Entradas:
+    - dic: dict, diccionario con la estructura de directorios y archivos encontrados.
+    Salidas:
+    - list : lista con los 10 directorios mas pesados encontrados.
+    """
+    lista_directorios = []
+    lista_directorios.append((dic["archivos_cantidad"], dic["ruta"]))
+    for hijo in dic["hijos"]:
+        lista_directorios += top10_directorios(hijo)
+    lista_directorios.sort(reverse=True)
+    return lista_directorios[:10]

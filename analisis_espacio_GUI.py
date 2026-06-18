@@ -22,17 +22,19 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
 
             nombre = diccionario["nombre"]
             peso = diccionario["peso"]
+            peso_reducido = peso
+            peso_padre_reducido = peso_padre
             
             divisiones = 0
             
-            while peso >= 1000:
-                peso /= 1024
+            while peso_reducido >= 1000:
+                peso_reducido /= 1024
                 divisiones += 1
-            peso = round(peso, 2)
-            peso_str = str(peso)
+            peso_reducido = round(peso, 2)
+            peso_str = str(peso_reducido)
 
-            while peso_padre >= 1000:
-                peso_padre /= 1024
+            while peso_padre_reducido >= 1000:
+                peso_padre_reducido /= 1024
 
             match divisiones:
                 case 0:
@@ -66,7 +68,8 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
             rect_y es {rect_y}, 
             rect_ancho es {int(rect_ancho)}, 
             peso es {peso}, 
-            profundidad es {profundidad}""")
+            profundidad es {profundidad},
+            divisiones es {divisiones}""")
 
             pygame.draw.rect(window, (r, g, b), (rect_x, rect_y, int(rect_ancho), rect_alto), border_radius=5)
             pygame.draw.rect(window, (0, 0, 0), (rect_x, rect_y, int(rect_ancho), rect_alto), 2, border_radius=5)
@@ -92,9 +95,9 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
                     dibujo_recursivo_aux(hijo, window, rect_x + rect_ancho, rect_y, rect_ancho, rect_alto, peso_padre, h_padre, v_padre, (s_padre + rand([-0.2 -0.01, 0.01, 0.02]))%1)
 
                 else:
-                    dibujo_recursivo_aux(hijo, window, rect_x, rect_y + rect_alto, rect_ancho, rect_alto, peso, h_padre, (v_padre + rand([-0.14, -0.07, 0.07, 0.14]))%1, (s_padre + rand([-0.6 -0.03, 0.03, 0.06]))%1)
+                    dibujo_recursivo_aux(hijo, window, rect_x, rect_y + rect_alto, rect_ancho, rect_alto, peso, h_padre, (v_padre + rand([ -0.05, -0.03, 0.03, 0.05, 0.07, 0.14]))%1, (s_padre + rand([-0.3 -0.02, 0.01, 0.03, 0.06]))%1)
             
-    return dibujo_recursivo_aux(directorio_carpetas, window, rect_x, rect_y, rect_ancho, rect_alto, peso_padre, 0.6, 0.8, 0.7)
+    return dibujo_recursivo_aux(directorio_carpetas, window, rect_x, rect_y, rect_ancho, rect_alto, peso_padre, 0.6, 0.3, 0.3)
 
 
 
@@ -145,7 +148,47 @@ def main():
 
     window.fill((255, 255, 255))
 
-    dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho - (rect_x*2), rect_alto)
+    dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho - rect_x, rect_alto)
+
+    rect_y += alto*0.2
+
+    font = pygame.font.Font(None, 40)
+
+    top_archivos = log.top10_archivos(directorio_carpetas)
+
+    texto = font.render("Top 10 archivos más pesados de la estructura", True, (0, 0, 0))
+    window.blit(texto, (rect_x, rect_y))
+
+    rect_y += texto.get_height()*1.5
+
+    for archivo in top_archivos:
+        peso, ruta = archivo
+        peso = str(peso)
+
+        texto = font.render(ruta + " " + peso, True, (0, 0, 0))
+
+        window.blit(texto, (rect_x, rect_y))
+
+        rect_y += texto.get_height()
+
+    top_directorios = log.top10_directorios(directorio_carpetas)
+
+    rect_y += texto.get_height()*3
+
+    texto = font.render("Top 10 directorios más grandes de la estructura", True, (0, 0, 0))
+    window.blit(texto, (rect_x, rect_y))
+
+    rect_y += texto.get_height()*1.5
+
+    for directorio in top_directorios:
+        cantidad, ruta = directorio
+        cantidad = str(cantidad)
+
+        texto = font.render(ruta + " " + cantidad, True, (0, 0, 0))
+
+        window.blit(texto, (rect_x, rect_y))
+        
+        rect_y += texto.get_height()
     
     pygame.display.flip()
 

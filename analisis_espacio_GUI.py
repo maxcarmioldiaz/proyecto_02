@@ -24,17 +24,17 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
             peso = diccionario["peso"]
             peso_reducido = peso
             peso_padre_reducido = peso_padre
+
+            while peso_padre_reducido >= 1000:
+                peso_padre_reducido /= 1024
             
             divisiones = 0
             
             while peso_reducido >= 1000:
                 peso_reducido /= 1024
                 divisiones += 1
-            peso_reducido = round(peso, 2)
+            peso_reducido = round(peso_reducido, 2)
             peso_str = str(peso_reducido)
-
-            while peso_padre_reducido >= 1000:
-                peso_padre_reducido /= 1024
 
             match divisiones:
                 case 0:
@@ -62,17 +62,9 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
 
             font = pygame.font.Font(None, 40)
 
-            #REVISION EN EL PRINT
-            print(f"""El nombre es: {nombre}, 
-            rect_x es {rect_x}, 
-            rect_y es {rect_y}, 
-            rect_ancho es {int(rect_ancho)}, 
-            peso es {peso}, 
-            profundidad es {profundidad},
-            divisiones es {divisiones}""")
-
             pygame.draw.rect(window, (r, g, b), (rect_x, rect_y, int(rect_ancho), rect_alto), border_radius=5)
-            pygame.draw.rect(window, (0, 0, 0), (rect_x, rect_y, int(rect_ancho), rect_alto), 2, border_radius=5)
+            if rect_ancho > 10:
+                pygame.draw.rect(window, (0, 0, 0), (rect_x, rect_y, int(rect_ancho), rect_alto), 2, border_radius=5)
             texto = font.render(peso_str + " " + prefijo + " " + nombre, True, (0, 0, 0))
 
             ancho_texto= texto.get_width()
@@ -88,14 +80,15 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
             if ancho_texto <= rect_ancho and alto_texto <= rect_alto:
                 window.blit(texto, texto_rect)
 
-            for hijo in diccionario["hijos"]:
+            for i in range(len(diccionario["hijos"])):
 
-                if hijo["hijos"] == []:
+                if diccionario["hijos"][i] == []:
 
-                    dibujo_recursivo_aux(hijo, window, rect_x + rect_ancho, rect_y, rect_ancho, rect_alto, peso_padre, h_padre, v_padre, (s_padre + rand([-0.2 -0.01, 0.01, 0.02]))%1)
+                    dibujo_recursivo_aux(diccionario["hijos"][i+1], window, rect_x + rect_ancho, rect_y, rect_ancho, rect_alto, peso_padre, h_padre, v_padre, (s_padre + rand([-0.2 -0.01, 0.01, 0.02]))%1)
 
                 else:
-                    dibujo_recursivo_aux(hijo, window, rect_x, rect_y + rect_alto, rect_ancho, rect_alto, peso, h_padre, (v_padre + rand([ -0.05, -0.03, 0.03, 0.05, 0.07, 0.14]))%1, (s_padre + rand([-0.3 -0.02, 0.01, 0.03, 0.06]))%1)
+
+                    dibujo_recursivo_aux(diccionario["hijos"][i], window, rect_x, rect_y + rect_alto, rect_ancho, rect_alto, peso, h_padre, (v_padre + rand([ -0.05, -0.03, 0.03, 0.05, 0.07, 0.14]))%1, (s_padre + rand([-0.3 -0.02, 0.01, 0.03, 0.06]))%1)
             
     return dibujo_recursivo_aux(directorio_carpetas, window, rect_x, rect_y, rect_ancho, rect_alto, peso_padre, 0.6, 0.3, 0.3)
 
@@ -150,9 +143,9 @@ def main():
 
     dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho - rect_x, rect_alto)
 
-    rect_y += alto*0.2
+    rect_y = rect_alto * 9
 
-    font = pygame.font.Font(None, 40)
+    font = pygame.font.Font(None, 20)
 
     top_archivos = log.top10_archivos(directorio_carpetas)
 
@@ -163,11 +156,38 @@ def main():
 
     for archivo in top_archivos:
         peso, ruta = archivo
-        peso = str(peso)
 
-        texto = font.render(ruta + " " + peso, True, (0, 0, 0))
+        divisiones = 0
 
-        window.blit(texto, (rect_x, rect_y))
+        while peso >= 1000:
+            peso /= 1024
+            divisiones += 1
+        peso = round(peso, 2)
+        peso_str = str(peso)
+
+        match divisiones:
+            case 0:
+                prefijo = "B"
+            case 1:
+                prefijo = "KB"
+            case 2:
+                prefijo = "MB"
+            case 3:
+                prefijo = "GB"
+            case 4:
+                prefijo = "TB"
+            case 5:
+                prefijo = "PB"
+
+        texto = font.render(ruta + "   " + "El peso es:" + " " + peso_str + " " + prefijo , True, (0, 0, 0))
+
+        ancho_texto = texto.get_width()
+
+        if ancho_texto <= ancho:
+            window.blit(texto, (rect_x, rect_y))
+
+        else:
+            texto = font.render(ruta[:35] + "..." + "   " + "El peso es:" + " " + peso_str + " " + prefijo, True, (0, 0, 0))
 
         rect_y += texto.get_height()
 
@@ -184,7 +204,15 @@ def main():
         cantidad, ruta = directorio
         cantidad = str(cantidad)
 
-        texto = font.render(ruta + " " + cantidad, True, (0, 0, 0))
+        texto = font.render(ruta + "   " + "El directorio tiene " + cantidad + " archivos.", True, (0, 0, 0))
+        
+        ancho_texto = texto.get_width()
+
+        if ancho_texto <= ancho:
+            window.blit(texto, (rect_x, rect_y))
+
+        else:
+            texto = font.render(ruta[:35] + "..." + "   " + "El directorio tiene " + cantidad + " archivos.", True, (0, 0, 0))
 
         window.blit(texto, (rect_x, rect_y))
         

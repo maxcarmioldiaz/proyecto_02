@@ -26,7 +26,7 @@ def recorrer_directorio_aux(ruta, profundidad):
     Salidas:
     - dict: diccionario con la estructura de directorios y archivos encontrados.
     """
-
+    
     dic = {
         "nombre": os.path.basename(ruta),
         "ruta": ruta,
@@ -40,6 +40,7 @@ def recorrer_directorio_aux(ruta, profundidad):
     entradas = os.listdir(ruta)
 
     for entrada in entradas:
+
         ruta_entrada = os.path.join(ruta, entrada)
 
         if os.path.isdir(ruta_entrada):
@@ -64,11 +65,17 @@ def top10_archivos(dic):
     - list: lista con los 10 archivos mas pesados encontrados en el directorio y sus subdirectorios.
     """ 
     lista_archivos = []
+
     for peso, ruta in dic["archivos_peso"]:
+
         lista_archivos.append((peso, ruta))
+
     for hijo in dic["hijos"]:
+
         lista_archivos += top10_archivos(hijo)
+
     lista_archivos.sort(reverse=True)
+
     return lista_archivos[:10]
 
 def top10_directorios(dic):
@@ -79,9 +86,15 @@ def top10_directorios(dic):
     Salidas:
     - list : lista con los 10 directorios mas pesados encontrados.
     """
+
     lista_directorios = []
+
     lista_directorios.append((dic["archivos_cantidad"], dic["ruta"]))
+
     for hijo in dic["hijos"]:
+        
         lista_directorios += top10_directorios(hijo)
+
     lista_directorios.sort(reverse=True)
+
     return lista_directorios[:10]

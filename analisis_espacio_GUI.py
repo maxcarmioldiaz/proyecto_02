@@ -57,10 +57,23 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
                 int(g * 255),
                 int(b * 255) 
             )
+            if peso_padre != 0:
+                rect_ancho*=(peso/peso_padre)
+            else:
+                rect_ancho = 2
 
-            rect_ancho*=(peso/peso_padre)
+            if int(rect_ancho) == 0:
+                rect_ancho = 2
 
             font = pygame.font.Font(None, 40)
+
+            #REVISION EN EL PRINT
+            print(f"""El nombre es: {nombre}, 
+            rect_x es {rect_x}, 
+            rect_y es {rect_y}, 
+            rect_ancho es {int(rect_ancho)}, 
+            peso es {peso}, 
+            profundidad es {profundidad}""")
 
             pygame.draw.rect(window, (r, g, b), (rect_x, rect_y, int(rect_ancho), rect_alto), border_radius=5)
             if rect_ancho > 10:

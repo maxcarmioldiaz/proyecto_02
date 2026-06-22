@@ -23,6 +23,7 @@ def recorrer_directorio_aux(ruta, profundidad):
     devuelve un diccionario con la estructura de directiorios y archivos encontrados.
     Entradas:
     - ruta: str, ruta del directorio a recorrer.
+    - profundidad: int, profundidad del directorio actual.
     Salidas:
     - dict: diccionario con la estructura de directorios y archivos encontrados.
     """

@@ -67,14 +67,7 @@ def dibujo_recursivo(directorio_carpetas, window, rect_x, rect_y, rect_ancho, re
 
             font = pygame.font.Font(None, 40)
 
-            #REVISION EN EL PRINT
-            print(f"""El nombre es: {nombre}, 
-            rect_x es {rect_x}, 
-            rect_y es {rect_y}, 
-            rect_ancho es {int(rect_ancho)}, 
-            peso es {peso}, 
-            profundidad es {profundidad}""")
-
+            
             pygame.draw.rect(window, (r, g, b), (rect_x, rect_y, int(rect_ancho), rect_alto), border_radius=5)
             if rect_ancho > 10:
                 pygame.draw.rect(window, (0, 0, 0), (rect_x, rect_y, int(rect_ancho), rect_alto), 2, border_radius=5)
